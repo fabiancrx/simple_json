@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:simple_json_mapper/simple_json_mapper.dart';
+import 'package:simple_json_mapper/src/converters/duration.dart';
 
 import 'converters/datetime.dart';
 import 'json_converter.dart';
@@ -9,15 +10,17 @@ class JsonObjectMapper<T> {
   const JsonObjectMapper(this.fromJsonMap, this.toJsonMap);
 
   final T Function(CustomJsonMapper mapper, Map<String, dynamic> map)
-      fromJsonMap;
+  fromJsonMap;
   final Map<String, dynamic> Function(CustomJsonMapper mapper, T item)
-      toJsonMap;
+  toJsonMap;
 }
 
 class JsonMapper {
   static bool verbose = false;
   static CustomJsonMapper _instance = CustomJsonMapper(verbose: verbose);
+
   static bool isMapperRegistered<T>() => _instance.isMapperRegistered<T>();
+
   static bool isConverterRegistered<T>() =>
       _instance.isConverterRegistered<T>();
 
@@ -39,14 +42,15 @@ class JsonMapper {
 
   static void registerConverter<T>(JsonConverter<dynamic, T> transformer) =>
       _instance.registerConverter(transformer);
+
+  static JsonObjectMapper<T> mapper<T>() => _instance._getTypeMap<T>();
 }
 
 typedef ListCastFunction<T> = List<T> Function(List<dynamic> list);
 
 class CustomJsonMapper {
-  CustomJsonMapper(
-      {this.verbose = false,
-      List<JsonConverter<dynamic, dynamic>> converters}) {
+  CustomJsonMapper({this.verbose = false,
+    List<JsonConverter<dynamic, dynamic>> converters}) {
     if (converters != null)
       _converters.addAll(converters
           .fold(<String, JsonConverter<dynamic, dynamic>>{}, (map, converter) {
@@ -62,6 +66,7 @@ class CustomJsonMapper {
 
   final _converters = <String, JsonConverter<dynamic, dynamic>>{
     (DateTime).toString(): const DefaultISO8601DateConverter(),
+    (Duration).toString(): const DefaultDurationConverter(),
   };
 
   bool isMapperRegistered<T>() {
@@ -98,8 +103,8 @@ class CustomJsonMapper {
     if (verbose) print(typeName);
     return json.encode(_isListWithType(typeName)
         ? (item as List)
-            .map((i) => _serializeToMapWithType(typeName, i))
-            .toList()
+        .map((i) => _serializeToMapWithType(typeName, i))
+        .toList()
         : serializeToMap(item));
   }
 
@@ -215,7 +220,7 @@ class CustomJsonMapper {
         : value;
   }
 
-  // static bool _isPrimitveType<T>() {
-  //   return T is bool || T is double || T is int || T is num || T is String;
-  // }
+// static bool _isPrimitveType<T>() {
+//   return T is bool || T is double || T is int || T is num || T is String;
+// }
 }

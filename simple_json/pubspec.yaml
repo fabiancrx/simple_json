@@ -7,7 +7,11 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  simple_json_mapper: ^1.1.0
+  simple_json_mapper:
+    git:
+      url: https://github.com/fabiancrx/simple_json.git
+      path: simple_json_mapper
+      ref: edv
   build_resolvers: ^1.3.0
   analyzer: ">=0.37.0 <0.40.0"
   build: ^1.3.0
